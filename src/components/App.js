@@ -10,8 +10,6 @@ import { animateScroll as scroll } from 'react-scroll';
 import Modal from './Modal';
 import './App.css';
 
-//to do axios in component
-// to do style
 class App extends Component {
   state = {
     articles: [],
@@ -25,7 +23,7 @@ class App extends Component {
   toogleModal = () => {
     this.setState(state => ({ showModal: !state.showModal }));
   };
-  //add text search
+
   handleAddQuery = text => {
     this.setState({
       query: text,
@@ -44,9 +42,9 @@ class App extends Component {
 
   AxiosArticles = () => {
     const { query, page } = this.state;
-    //
+
     this.setState({ loading: true });
-    //запрос на сервер
+
     axiosApi
       .axiosApiWithQuery(query, page)
       .then(data =>
