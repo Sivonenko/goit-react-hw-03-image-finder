@@ -6,9 +6,14 @@ import style from './Loader.module.css';
 export default class LoaderSpinner extends Component {
   render() {
     return (
-      <div className={style.loaderWrapper}>
-        <Loader type="ThreeDots" color="#00BFFF" height={100} width={100} />
-      </div>
+      <Loader
+        className={style.loader}
+        type="ThreeDots"
+        color="#00BFFF"
+        height={100}
+        width={100}
+        timeout={3000} //3 secs
+      />
     );
   }
 }

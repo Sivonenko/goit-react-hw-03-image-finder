@@ -71,7 +71,7 @@ class App extends Component {
 
   render() {
     const { articles, loading, showModal, url } = this.state;
-    const shouldRenderLoadMoreButton = articles.length > 0 && !loading;
+
     return (
       <>
         <Section>
@@ -79,15 +79,15 @@ class App extends Component {
         </Section>
 
         <Section>
-          <ImageGallery array={articles} onClick={this.handleAddUrlToModal} />
           {loading && <LoaderSpinner />}
-
-          {shouldRenderLoadMoreButton && (
-            <LoaderBtn onClick={this.handleClick} />
+          {articles.length > 0 && (
+            <ImageGallery array={articles} onClick={this.handleAddUrlToModal} />
           )}
+          {articles.length > 0 && <LoaderBtn onClick={this.handleClick} />}
           {showModal && (
             <Modal onClick={this.toogleModal}>
-              <img src={url} alt="" />
+              {' '}
+              <img src={url} alt="" />{' '}
             </Modal>
           )}
         </Section>
