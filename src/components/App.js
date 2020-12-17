@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import Section from './Section/';
-import Searchbar from './Searchbar';
-import ImageGallery from './ImageGallery';
+import Searchbar from './Searchbar/Searchbar';
+import ImageGallery from './ImageGallery/ImageGallery';
 import axiosApi from './Service/AxiosAPI';
 import LoaderBtn from './Button';
-import Loader from './Loader';
+import Loader from './Loader/Loader';
 import { animateScroll as scroll } from 'react-scroll';
 
-import Modal from './Modal';
+import Modal from './Modal/Modal';
 import './App.css';
 
 class App extends Component {
