@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import Section from './Section/';
-import Searchbar from './Searchbar/Searchbar';
-import ImageGallery from './ImageGallery/ImageGallery';
-import axiosApi from './Service/AxiosAPI';
-import LoaderBtn from './Button';
-import Loader from './Loader/Loader';
+import Section from './Components/Section';
+import Searchbar from './Components/Searchbar/Searchbar';
+import ImageGallery from './Components/ImageGallery/ImageGallery';
+import axiosApi from './Components/Service/AxiosAPI';
+import LoaderBtn from './Components/Button';
+import LoaderSpinner from './Components/Loader/Loader';
 import { animateScroll as scroll } from 'react-scroll';
 
-import Modal from './Modal/Modal';
+import Modal from './Components/Modal/Modal';
 import './App.css';
 
 class App extends Component {
@@ -71,7 +71,7 @@ class App extends Component {
 
   render() {
     const { articles, loading, showModal, url } = this.state;
-
+    const shouldRenderLoadMoreButton = articles.length > 0 && !loading;
     return (
       <>
         <Section>
@@ -79,15 +79,15 @@ class App extends Component {
         </Section>
 
         <Section>
-          {loading && <Loader />}
-          {articles.length > 0 && (
-            <ImageGallery array={articles} onClick={this.handleAddUrlToModal} />
+          <ImageGallery array={articles} onClick={this.handleAddUrlToModal} />
+          {loading && <LoaderSpinner />}
+
+          {shouldRenderLoadMoreButton && (
+            <LoaderBtn onClick={this.handleClick} />
           )}
-          {articles.length > 0 && <LoaderBtn onClick={this.handleClick} />}
           {showModal && (
             <Modal onClick={this.toogleModal}>
-              {' '}
-              <img src={url} alt="" />{' '}
+              <img src={url} alt="" />
             </Modal>
           )}
         </Section>
