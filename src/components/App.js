@@ -1,119 +1,101 @@
-import React from 'react';
-import Api from '../imgApi';
+import React, { Component } from 'react';
+import Section from './Section/';
 import Searchbar from './Searchbar';
-import LoaderSpiner from './LoaderSpiner';
 import ImageGallery from './ImageGallery';
-import ModalWindow from './Modal';
-import Button from './Button';
-import PropTypes from 'prop-types';
-import styles from './App.module.css';
+import axiosApi from './Service/AxiosAPI';
+import LoaderBtn from './Button';
+import Loader from './Loader';
+import { animateScroll as scroll } from 'react-scroll';
 
-class App extends React.Component {
+import Modal from './Modal';
+import './App.css';
+
+//to do axios in component
+// to do style
+class App extends Component {
   state = {
-    searchQuery: '',
-    imageData: [],
-    isLoading: false,
-    showModalStatus: false,
-    largeImage: '',
-    currentPage: 1,
-    loadMoreStatus: false,
+    articles: [],
+    query: '',
+    page: 1,
+    loading: false,
+    showModal: false,
+    url: '',
   };
 
-  componentDidMount() {
-    document.addEventListener('keydown', this.closeModal, false);
-  }
+  toogleModal = () => {
+    this.setState(state => ({ showModal: !state.showModal }));
+  };
+  //add text search
+  handleAddQuery = text => {
+    this.setState({
+      query: text,
+      page: 1,
+      articles: [],
+    });
+  };
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchQuery, currentPage } = this.state;
-    if (
-      prevState.searchQuery !== this.state.searchQuery ||
-      prevState.currentPage !== this.state.currentPage
-    ) {
-      this.addData(searchQuery, currentPage);
+    const prevQuery = prevState.query;
+    const nextQuery = this.state.query;
+    if (prevQuery !== nextQuery) {
+      this.AxiosArticles();
     }
   }
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.closeModal, false);
-  }
-
-  addData = (searchQuery, currentPage) => {
-    this.setState({ isLoading: true });
-    Api.getImageList(searchQuery, currentPage)
-      .then(imageData =>
+  AxiosArticles = () => {
+    const { query, page } = this.state;
+    //
+    this.setState({ loading: true });
+    //запрос на сервер
+    axiosApi
+      .axiosApiWithQuery(query, page)
+      .then(data =>
         this.setState(prevState => {
-          if (imageData.length !== 0) {
-            return {
-              imageData: prevState.imageData.concat(imageData),
-              loadMoreStatus: true,
-            };
-          } else {
-            return { loadMoreStatus: false };
-          }
+          return {
+            articles: [...prevState.articles, ...data],
+            page: prevState.page + 1,
+          };
         }),
       )
-      .then(() =>
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        }),
-      )
-      .catch(error => console.log(error))
-      .finally(() => this.setState({ isLoading: false }));
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ loading: false }));
   };
 
-  searchText = inputText => {
-    this.setState({
-      searchQuery: inputText,
-      currentPage: 1,
-      imageData: [],
-      loadMore: true,
-    });
+  handleClick = () => {
+    this.AxiosArticles();
+    scroll.scrollToBottom();
   };
 
-  showModal = dataUrlLarge => {
-    this.setState({ showModalStatus: true, largeImage: dataUrlLarge });
-  };
-
-  closeModal = e => {
-    if (e.keyCode === 27 || e.target.tagName === 'DIV') {
-      this.setState({ showModalStatus: false, largeImage: '' });
-    }
-  };
-
-  loadMore = () => {
-    this.setState(prevState => {
-      if (this.state.imageData.length % 12 !== 0) {
-        return { loadMoreStatus: false };
-      } else return { currentPage: prevState.currentPage + 1 };
-    });
+  handleAddUrlToModal = url => {
+    this.toogleModal();
+    this.setState(preveState => ({ url: (preveState.url = url) }));
   };
 
   render() {
-    const {
-      isLoading,
-      imageData,
-      largeImage,
-      showModalStatus,
-      loadMoreStatus,
-    } = this.state;
+    const { articles, loading, showModal, url } = this.state;
+
     return (
-      <div className={styles.App}>
-        <Searchbar searchText={this.searchText} />
-        {isLoading ? <LoaderSpiner /> : null}
-        <ImageGallery imageData={imageData} showModal={this.showModal} />
-        {showModalStatus && (
-          <ModalWindow dataUrlLarge={largeImage} closeModal={this.closeModal} />
-        )}
-        {loadMoreStatus && <Button loadMore={this.loadMore} />}
-      </div>
+      <>
+        <Section>
+          <Searchbar addQueryOnSubmit={this.handleAddQuery} />
+        </Section>
+
+        <Section>
+          {loading && <Loader />}
+          {articles.length > 0 && (
+            <ImageGallery array={articles} onClick={this.handleAddUrlToModal} />
+          )}
+          {articles.length > 0 && <LoaderBtn onClick={this.handleClick} />}
+          {showModal && (
+            <Modal onClick={this.toogleModal}>
+              {' '}
+              <img src={url} alt="" />{' '}
+            </Modal>
+          )}
+        </Section>
+      </>
     );
   }
 }
 
 export default App;
-
-App.propTypes = {
-  inputText: PropTypes.string,
-  imageData: PropTypes.array,
-};
